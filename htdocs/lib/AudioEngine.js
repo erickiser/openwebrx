@@ -35,6 +35,11 @@ function AudioEngine(maxBufferLength, audioReporter) {
     this.hdRecorder = new AudioRecorder(this.getHdOutputRate(), 128, 2);
     this.recording = false;
     this.lastHd = false;
+
+    // Automatic notch filters, one for each kind of audio stream
+    this.notch = new AutoNotch(this.getOutputRate());
+    this.hdNotch = new AutoNotch(this.getHdOutputRate());
+    this.notchEnabled = false;
 }
 
 AudioEngine.prototype.buildAudioContext = function() {
@@ -290,7 +295,7 @@ AudioEngine.prototype.getSampleRate = function() {
     return this.audioContext.sampleRate;
 };
 
-AudioEngine.prototype.processAudio = function(data, resampler, recorder, stereo = false) {
+AudioEngine.prototype.processAudio = function(data, resampler, recorder, notch, stereo = false) {
     // audio must be initialized
     if (!this.audioNode) return;
 
@@ -320,6 +325,9 @@ AudioEngine.prototype.processAudio = function(data, resampler, recorder, stereo 
         }
     }
 
+    // remove steady tones
+    if (this.notchEnabled) buffer = notch.process(buffer);
+
     // record to MP3
     if (this.recording) recorder.record(buffer);
 
@@ -336,22 +344,38 @@ AudioEngine.prototype.processAudio = function(data, resampler, recorder, stereo 
 }
 
 AudioEngine.prototype.pushAudio = function(data) {
-    this.processAudio(data, this.resampler, this.recorder);
+    this.processAudio(data, this.resampler, this.recorder, this.notch);
     this.lastHd = false;
 };
 
 AudioEngine.prototype.pushHdAudio = function(data) {
-    this.processAudio(data, this.hdResampler, this.hdRecorder);
+    this.processAudio(data, this.hdResampler, this.hdRecorder, this.hdNotch);
     this.lastHd = true;
 }
 
 AudioEngine.prototype.pushHdStereo = function(data) {
-    this.processAudio(data, this.hdResampler, this.hdRecorder, true);
+    this.processAudio(data, this.hdResampler, this.hdRecorder, this.hdNotch, true);
     this.lastHd = true;
 }
 
 AudioEngine.prototype.setCompression = function(compression) {
     this.compression = compression;
+};
+
+AudioEngine.prototype.setNotch = function(enabled) {
+    // audio may not be available at all
+    if (!this.notch) return;
+
+    // start looking for tones from scratch
+    this.notch.reset();
+    this.hdNotch.reset();
+    this.notchEnabled = !!enabled;
+};
+
+AudioEngine.prototype.getNotches = function() {
+    // frequencies of the tones currently being removed
+    if (!this.notchEnabled) return [];
+    return (this.lastHd? this.hdNotch : this.notch).getNotches();
 };
 
 AudioEngine.prototype.setVolume = function(volume) {

@@ -130,6 +130,7 @@ class CompiledAssetsController(GzipMixin, ModificationAwareController):
             "lib/BookmarkBar.js",
             "lib/BookmarkDialog.js",
             "lib/AudioEngine.js",
+            "lib/AutoNotch.js",
             "lib/ProgressBar.js",
             "lib/Measurement.js",
             "lib/FrequencyDisplay.js",

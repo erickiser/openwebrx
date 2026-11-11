@@ -14,6 +14,7 @@ UI.volume = -1;
 UI.volumeMuted = -1;
 UI.nrThreshold = -20;
 UI.nrEnabled = false;
+UI.notchEnabled = false;
 UI.wheelSwap = false;
 UI.spectrum = false;
 UI.bandplan = false;
@@ -42,6 +43,7 @@ UI.loadSettings = function() {
     this.setWfTheme(LS.has('wf_theme')? LS.loadStr('wf_theme') : 'default');
     this.setNR(LS.has('nr_threshold')? LS.loadInt('nr_threshold') : 0);
     this.toggleNR(LS.has('nr_enabled')? LS.loadBool('nr_enabled') : false);
+    this.toggleNotch(LS.has('notch_enabled')? LS.loadBool('notch_enabled') : false);
 
     // Toggle UI sections
     for (section in this.sections) {
@@ -345,6 +347,42 @@ UI.updateNR = function() {
         }
     }));
 }
+
+//
+// Automatic Notch Filter Controls
+//
+
+// Toggle automatic notch filter, removing steady tones from audio.
+UI.toggleNotch = function(on) {
+    // If no argument given, toggle notch filter
+    if (typeof(on) === 'undefined') on = !this.notchEnabled;
+
+    this.notchEnabled = !!on;
+    LS.save('notch_enabled', this.notchEnabled);
+    $('.openwebrx-notch-toggle').toggleClass('highlighted', this.notchEnabled);
+    if (audioEngine) audioEngine.setNotch(this.notchEnabled);
+
+    // Keep showing which tones are being removed
+    if (!this.notchTimer) {
+        this.notchTimer = setInterval(this.updateNotch.bind(this), 500);
+    }
+    this.updateNotch();
+};
+
+// Show tones currently being removed next to the notch button.
+UI.updateNotch = function() {
+    var tones = [];
+    var text  = 'Tone filter off';
+
+    if (this.notchEnabled) {
+        if (audioEngine) tones = audioEngine.getNotches();
+        tones = tones.map(Math.round).sort(function(a, b) { return a - b; });
+        text  = tones.length? 'Removing ' + tones.join(', ') + ' Hz' : 'No steady tones found';
+    }
+
+    $('.openwebrx-notch-status').text(text);
+    $('.openwebrx-notch-line').toggleClass('working', tones.length > 0);
+};
 
 //
 // Audio Recording Controls

@@ -299,6 +299,12 @@
                             </div>
                             <input title="Waterfall maximum level" id="openwebrx-waterfall-color-max" class="openwebrx-panel-slider" type="range" min="-200" max="100" value="50" step="1" onchange="Waterfall.updateColors(1);">
                         </div>
+                        <div class="openwebrx-panel-line openwebrx-notch-line" onclick="UI.toggleNotch();">
+                            <div title="Automatic notch filter on/off" class="openwebrx-notch-toggle openwebrx-button openwebrx-slider-button">
+                                <svg viewBox="0 0 80 80"><path d="M4 20 H26 L40 66 L54 20 H76" fill="none" stroke="#fff" stroke-width="9" stroke-linejoin="round" stroke-linecap="round"/></svg>
+                            </div>
+                            <span title="Automatic notch filter removes steady tones from audio" class="openwebrx-notch-status">Tone filter off</span>
+                        </div>
                     </div>
                     <div id="openwebrx-section-settings" class="openwebrx-section-divider" onclick="UI.toggleSection(this);">&blacktriangle;&nbsp;Settings</div>
                     <div class="openwebrx-section">

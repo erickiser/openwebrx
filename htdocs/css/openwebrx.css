@@ -2187,6 +2187,22 @@ img.openwebrx-mirror-img
     animation-iteration-count: infinite;
 }
 
+.openwebrx-notch-line {
+    cursor: pointer;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.openwebrx-notch-status {
+    color: #aaa;
+    margin-left: 4px;
+}
+
+.openwebrx-notch-line.working .openwebrx-notch-status {
+    color: #80ff80;
+}
+
 @keyframes openwebrx-scan-animation {
     0% { background: #00ff00; color: white; }
    50% { background: #008000; color: white; }

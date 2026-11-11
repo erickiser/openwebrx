@@ -65,6 +65,10 @@ Shortcuts.init = function(target) {
         <div class="ks-item-kbd">${this.keycap('N')}</div>
       </div>
       <div class="ks-item">
+        <div class="ks-item-txt">toggle auto notch filter</div>
+        <div class="ks-item-kbd">${this.keycap('K')}</div>
+      </div>
+      <div class="ks-item">
         <div class="ks-item-txt">adjust waterfall min level</div>
         <div class="ks-item-kbd">${this.keycap(',')}|${this.keycap('.')}</div>
       </div>
@@ -360,6 +364,11 @@ Shortcuts.handleKey = function(event) {
         case 'n':
             // N: Toggle noise reduction
             UI.toggleNR();
+            break;
+
+        case 'k':
+            // K: Toggle automatic notch filter
+            UI.toggleNotch();
             break;
 
         case 'r':
